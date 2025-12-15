@@ -8,6 +8,10 @@ import {
 import { getString, initLocale } from "./utils/locale";
 import { registerPrefsScripts } from "./modules/preferenceScript";
 import { createZToolkit } from "./utils/ztoolkit";
+import {
+  checkFirstRunTranslators,
+  autoUpdateTranslators,
+} from "./modules/translators";
 
 async function onStartup() {
   await Promise.all([
@@ -17,6 +21,9 @@ async function onStartup() {
   ]);
 
   initLocale();
+
+  // Check and install bundled translators on first run
+  await checkFirstRunTranslators();
 
   BasicExampleFactory.registerPrefs();
 
@@ -90,7 +97,9 @@ async function onMainWindowLoad(win: _ZoteroTypes.MainWindow): Promise<void> {
   });
   popupWin.startCloseTimer(5000);
 
-  addon.hooks.onDialogEvents("dialogExample");
+  // Auto-update translators with delay
+  await Zotero.Promise.delay(10000);
+  autoUpdateTranslators();
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {

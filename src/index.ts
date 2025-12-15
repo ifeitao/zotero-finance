@@ -7,6 +7,10 @@ const basicTool = new BasicTool();
 // @ts-expect-error - Plugin instance is not typed
 if (!basicTool.getGlobal("Zotero")[config.addonInstance]) {
   _globalThis.addon = new Addon();
+  // Store rootURI from bootstrap context
+  if (_globalThis.rootURI) {
+    addon.data.rootURI = _globalThis.rootURI;
+  }
   defineGlobal("ztoolkit", () => {
     return _globalThis.addon.data.ztoolkit;
   });

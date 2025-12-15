@@ -11,6 +11,7 @@ class Addon {
     env: "development" | "production";
     initialized?: boolean;
     ztoolkit: ZToolkit;
+    rootURI?: string;
     locale?: {
       current: any;
     };

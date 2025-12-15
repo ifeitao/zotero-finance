@@ -23,4 +23,10 @@ export type FluentMessageId =
   | 'startup-begin'
   | 'startup-finish'
   | 'tabpanel-lib-tab-label'
-  | 'tabpanel-reader-tab-label';
+  | 'tabpanel-reader-tab-label'
+  | 'translator-install-failed'
+  | 'translator-installed'
+  | 'translator-installing'
+  | 'translator-up-to-date'
+  | 'translator-updated'
+  | 'translators-install-complete';
