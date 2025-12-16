@@ -9,7 +9,7 @@
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2025-12-13 11:53:10"
+	"lastUpdated": "2025-12-15 02:18:19"
 }
 
 /*
@@ -50,7 +50,7 @@ function getFinancialSlug(title) {
 		{ slug: 'AnnualReport', regex: /(年度报告|年报)/ },
 		{ slug: 'SemiAnnualReport', regex: /(半年度报告|半年报)/ },
 		{ slug: 'Q1Report', regex: /(第一季度报告|一季报)/ },
-		{ slug: 'Q3Report', regex: /(第三季度报告|三季报)/ },
+		{ slug: 'Q3Report', regex: /(第三季度报告|三季报|九个月业绩)/ },
 		{ slug: 'ESGReport', regex: /(社会责任报告|ESG)/ },
 		{ slug: 'AuditReport', regex: /审计报告/ },
 
@@ -121,7 +121,10 @@ async function scrape(doc, url) {
 	}
 
 	// 按Yahoo财经格式优化股票代码
-	if (stockCode.startsWith('6')) {
+	if(stockCode.length == 5) { //处理港股
+		stockCode = stockCode.substring(1, 5) + '.HK';
+	}		
+	else if (stockCode.startsWith('6')) {
 		stockCode += '.SS'; // 上海主板
 	} else if (stockCode.startsWith('0')) {
 		stockCode += '.SZ'; // 深圳主板
@@ -137,6 +140,12 @@ async function scrape(doc, url) {
 	// 示例: "贵州茅台:贵州茅台2025年第一季度报告 _ 贵州茅台(600519) _ 公告正文"
 	var pageTitle = doc.title || '';
 	var title = pageTitle.split('-')[0].trim().split('_')[0].trim();
+	var company = pageTitle.split('-')[0].trim().split('_')[1].trim(); //腾讯控股(00700) 
+	var companyName = company.split('(')[0].trim();
+
+	if(title.includes(':')==false && title.includes('：')==false) {
+		title = companyName + ':' + title;
+	}
 	
 	// 如果提取失败，使用默认标题
 	if (!title) {
@@ -212,6 +221,37 @@ var testCases = [
 				"reportType": "上市公司公告",
 				"shortTitle": "贵州茅台",
 				"url": "https://data.eastmoney.com/notices/detail/600519/AN202504291664502895.html",
+				"attachments": [
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					},
+					{
+						"title": "Snapshot",
+						"mimeType": "text/html"
+					}
+				],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "https://data.eastmoney.com/notices/detail/00700/AN202511131780580890.html",
+		"items": [
+			{
+				"itemType": "report",
+				"title": "腾讯控股:截至二零二五年九月三十日止三个月及九个月业绩公布",
+				"creators": [],
+				"date": "2025-11-13",
+				"extra": "Citation Key: 0700.HK-Q3Report-20251113\nTicker: 0700.HK",
+				"institution": "腾讯控股",
+				"libraryCatalog": "EastMoney Notices",
+				"reportType": "上市公司公告",
+				"shortTitle": "腾讯控股",
+				"url": "https://data.eastmoney.com/notices/detail/00700/AN202511131780580890.html",
 				"attachments": [
 					{
 						"title": "Full Text PDF",
