@@ -343,11 +343,12 @@ async function scrape(doc, url) {
 		}
 	}
 	
-	// 生成 Citation Key: 股票代码-研究机构-日期
+	// 生成 Citation Key: 股票代码-主题-研究机构-日期
 	var institutionCode = getInstitutionCode(item.institution);
 	var dateStr = dateInfo.dateStr || 'YYYYMMDD';
 	var keyPrefix = stockCode || 'Industry';
-	extraLines.unshift('Citation Key: ' + keyPrefix + '-research-' + institutionCode + '-' + dateStr);
+	var reportTypeSlug = getReportTypeSlug(item.title);
+	extraLines.unshift('Citation Key: ' + keyPrefix + '-' + reportTypeSlug + '-' + institutionCode + '-' + dateStr);
 	
 	// 添加研报代码
 	if (infocode) {

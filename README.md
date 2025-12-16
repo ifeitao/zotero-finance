@@ -47,6 +47,26 @@
 - 研究类型：深度研究、首次覆盖、跟踪报告、快评、业绩预告、事件评论
 - 行业分析：行业研究、专题分析、策略报告、宏观报告
 
+### 抓取 Robo 研报（需要油猴脚本）
+
+**Robo 研报页面的 PDF 在动态加载的"原文" tab 中，需要配合油猴脚本使用：**
+
+1. **安装油猴脚本**（一次性设置）：
+   - 安装 [Tampermonkey](https://www.tampermonkey.net/) 浏览器扩展
+   - 双击打开 `userscripts/robo-auto-original-simple.user.js` 安装脚本
+   - 详细说明见 [userscripts/README.md](userscripts/README.md)
+
+2. **使用方法**：
+   - 访问 Robo 研报页面（如 `https://robo.datayes.com/v2/details/report/5713026`）
+   - 油猴脚本会自动切换到"原文" tab
+   - 等待 PDF 加载后，点击 Zotero 图标保存
+
+**手动方式**（不安装油猴）：
+
+- 在 URL 后添加 `?tab=original` 参数访问
+- 或点击页面上的"打开原文PDF"按钮
+- 等待 PDF 加载后，点击 Zotero 图标
+
 ## ⚙️ 配置选项
 
 在 Zotero 中打开 `编辑` → `首选项` → `Zotero Finance`：
