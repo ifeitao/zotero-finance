@@ -1,9 +1,5 @@
 startup-begin = Addon is loading
 startup-finish = Addon is ready
-menuitem-label = Zotero Finance: Financial Literature Assistant
-menupopup-label = Zotero Finance: Menupopup
-menuitem-submenulabel = Zotero Finance
-menuitem-filemenulabel = Zotero Finance: File Menuitem
 prefs-title = Zotero Finance
 prefs-table-title = Title
 prefs-table-detail = Detail

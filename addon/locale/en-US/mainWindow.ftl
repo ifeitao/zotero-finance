@@ -9,3 +9,12 @@ item-section-example2-sidenav-tooltip =
 item-section-example2-button-tooltip =
     .tooltiptext = Unregister this section
 item-info-row-example-label = Example Row
+
+menuitem-label =
+    .label = Zotero Finance: Financial Literature Assistant
+menupopup-label =
+    .label = Zotero Finance: Menupopup
+menuitem-submenulabel =
+    .label = Zotero Finance
+menuitem-filemenulabel =
+    .label = Zotero Finance: File Menuitem

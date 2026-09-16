@@ -31,7 +31,7 @@ export function getTranslatorMetadata(translatorCode: string): {
   try {
     const metadataMatch = translatorCode.match(/^\s*\{[\s\S]*?\}\s*?[\r\n]/);
     if (!metadataMatch) return null;
-    
+
     const metadata = JSON.parse(metadataMatch[0]);
     return {
       translatorID: metadata.translatorID,
@@ -53,21 +53,21 @@ export async function getInstalledTranslatorLastUpdated(
   filename: string,
 ): Promise<string | false> {
   const translatorPath = PathUtils.join(
-    // @ts-ignore - DataDirectory is available in Zotero
     Zotero.DataDirectory.dir,
     "translators",
     filename,
   );
-  
+
   const isFileExist = await IOUtils.exists(translatorPath);
   if (!isFileExist) {
     logMessage(`Translator file not found: ${translatorPath}`);
     return false;
   }
-  
+
   try {
-    // @ts-ignore - File API is available
-    const source = (await Zotero.File.getContentsAsync(translatorPath)) as string;
+    const source = (await Zotero.File.getContentsAsync(
+      translatorPath,
+    )) as string;
     const metadata = getTranslatorMetadata(source);
     if (metadata) {
       logMessage(
@@ -89,39 +89,40 @@ export async function getInstalledTranslatorLastUpdated(
  */
 export async function getBundledTranslators(): Promise<Map<string, string>> {
   const translators = new Map<string, string>();
-  
+
   try {
     // Get the root URI from global context
-    const rootURI = (addon.data as any).rootURI || (Zotero as any)[config.addonInstance]?.data?.rootURI;
-    
+    const rootURI =
+      (addon.data as any).rootURI ||
+      (Zotero as any)[config.addonInstance]?.data?.rootURI;
+
     if (!rootURI) {
       logMessage("WARNING: rootURI not found");
       return translators;
     }
-    
+
     logMessage(`rootURI: ${rootURI}`);
-    
+
     let translatorsDir: string;
-    
+
     // Handle both file: and jar: URIs
     if (rootURI.startsWith("jar:")) {
       // For XPI packages: jar:file:///path/to/addon.xpi!/
       translatorsDir = rootURI + "translators/";
       logMessage(`Jar URI detected: ${translatorsDir}`);
-      
+
       // Try to list using IOUtils.getChildren with jar path
       try {
         const entries = await IOUtils.getChildren(translatorsDir);
         logMessage(`Found ${entries.length} items in translators directory`);
-        
+
         for (const entryPath of entries) {
           const filename = PathUtils.filename(entryPath);
           logMessage(`Processing: ${filename}`);
-          
+
           if (filename.endsWith(".js")) {
             try {
               // For jar: URIs, try using Zotero.File.getContentsAsync first
-              // @ts-ignore
               const content = await Zotero.File.getContentsAsync(entryPath);
               translators.set(filename, content as string);
               logMessage(`Loaded translator: ${filename}`);
@@ -135,7 +136,9 @@ export async function getBundledTranslators(): Promise<Map<string, string>> {
                   translators.set(filename, content);
                   logMessage(`Loaded translator via fetch: ${filename}`);
                 } else {
-                  logMessage(`Fetch failed with status ${response.status} for ${filename}`);
+                  logMessage(
+                    `Fetch failed with status ${response.status} for ${filename}`,
+                  );
                 }
               } catch (e2) {
                 logMessage(`Fetch also failed for ${filename}: ${e2}`);
@@ -144,9 +147,14 @@ export async function getBundledTranslators(): Promise<Map<string, string>> {
           }
         }
       } catch (dirError) {
-        logMessage(`Failed to list jar directory: ${dirError}, trying fallback`);
+        logMessage(
+          `Failed to list jar directory: ${dirError}, trying fallback`,
+        );
         // Fallback: try to load known translators directly
-        const knownTranslators = ["EastMoney Notices.js", "EastMoney Reports.js"];
+        const knownTranslators = [
+          "EastMoney Notices.js",
+          "EastMoney Reports.js",
+        ];
         for (const filename of knownTranslators) {
           try {
             const filePath = translatorsDir + filename;
@@ -165,19 +173,17 @@ export async function getBundledTranslators(): Promise<Map<string, string>> {
     } else {
       // For file: URIs (development mode)
       try {
-        // @ts-ignore - File API is available
         const rootFile = Zotero.File.pathToFile(rootURI);
         translatorsDir = PathUtils.join(rootFile.path, "translators");
         logMessage(`File URI detected: ${translatorsDir}`);
-        
+
         const entries = await IOUtils.getChildren(translatorsDir);
         logMessage(`Found ${entries.length} items`);
-        
+
         for (const entryPath of entries) {
           const filename = PathUtils.filename(entryPath);
           if (filename.endsWith(".js")) {
             try {
-              // @ts-ignore
               const content = await Zotero.File.getContentsAsync(entryPath);
               translators.set(filename, content as string);
               logMessage(`Loaded translator: ${filename}`);
@@ -193,7 +199,7 @@ export async function getBundledTranslators(): Promise<Map<string, string>> {
   } catch (error) {
     logMessage(`Error in getBundledTranslators: ${error}`);
   }
-  
+
   logMessage(`Total translators loaded: ${translators.size}`);
   return translators;
 }
@@ -210,12 +216,11 @@ export async function installTranslator(
 ): Promise<boolean> {
   try {
     const targetPath = PathUtils.join(
-      // @ts-ignore - DataDirectory is available in Zotero
       Zotero.DataDirectory.dir,
       "translators",
       filename,
     );
-    
+
     await IOUtils.writeUTF8(targetPath, code);
     logMessage(`Installed translator: ${filename} to ${targetPath}`);
     return true;
@@ -230,18 +235,15 @@ export async function installTranslator(
  * @param force if true, reinstall all translators regardless of version
  * @returns statistics of installation
  */
-export async function installBundledTranslators(
-  force = false,
-): Promise<{
+export async function installBundledTranslators(force = false): Promise<{
   total: number;
   installed: number;
   updated: number;
   skipped: number;
   failed: number;
 }> {
-  // @ts-ignore - Schema is available
   await Zotero.Schema.schemaUpdatePromise;
-  
+
   const stats = {
     total: 0,
     installed: 0,
@@ -249,17 +251,17 @@ export async function installBundledTranslators(
     skipped: 0,
     failed: 0,
   };
-  
+
   const bundledTranslators = await getBundledTranslators();
   stats.total = bundledTranslators.size;
-  
+
   if (stats.total === 0) {
     logMessage("No bundled translators found");
     return stats;
   }
-  
+
   logMessage(`Found ${stats.total} bundled translator(s)`);
-  
+
   for (const [filename, code] of bundledTranslators) {
     const bundledMetadata = getTranslatorMetadata(code);
     if (!bundledMetadata) {
@@ -267,9 +269,10 @@ export async function installBundledTranslators(
       stats.failed++;
       continue;
     }
-    
-    const installedLastUpdated = await getInstalledTranslatorLastUpdated(filename);
-    
+
+    const installedLastUpdated =
+      await getInstalledTranslatorLastUpdated(filename);
+
     let shouldInstall = force;
     if (!shouldInstall) {
       if (installedLastUpdated === false) {
@@ -280,7 +283,7 @@ export async function installBundledTranslators(
         // Compare versions
         const bundledDate = new Date(bundledMetadata.lastUpdated);
         const installedDate = new Date(installedLastUpdated);
-        
+
         if (bundledDate > installedDate) {
           shouldInstall = true;
           logMessage(
@@ -294,7 +297,7 @@ export async function installBundledTranslators(
         }
       }
     }
-    
+
     if (shouldInstall) {
       const success = await installTranslator(filename, code);
       if (success) {
@@ -308,14 +311,13 @@ export async function installBundledTranslators(
       }
     }
   }
-  
+
   // Reinitialize translators to make changes effective
   if (stats.installed > 0 || stats.updated > 0) {
-    // @ts-ignore - Translators.reinit is not in type definitions
     await Zotero.Translators.reinit({ fromSchemaUpdate: false });
     logMessage("Translators reinitialized");
   }
-  
+
   return stats;
 }
 
@@ -324,7 +326,7 @@ export async function installBundledTranslators(
  */
 export async function checkFirstRunTranslators(): Promise<void> {
   const firstRun = getPref("firstRun") as boolean;
-  
+
   if (firstRun) {
     logMessage("First run detected, installing bundled translators");
     const stats = await installBundledTranslators(true);
@@ -338,15 +340,15 @@ export async function checkFirstRunTranslators(): Promise<void> {
  */
 export async function autoUpdateTranslators(): Promise<void> {
   const autoUpdate = getPref("autoUpdateTranslators") as boolean;
-  
+
   if (!autoUpdate) {
     logMessage("Auto-update translators is disabled");
     return;
   }
-  
+
   logMessage("Auto-updating translators...");
   const stats = await installBundledTranslators(false);
-  
+
   if (stats.installed > 0 || stats.updated > 0) {
     logMessage(
       `Translators auto-updated: ${stats.installed} installed, ${stats.updated} updated`,

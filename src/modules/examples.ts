@@ -140,47 +140,63 @@ export class UIExampleFactory {
   static registerRightClickMenuItem() {
     const menuIcon = `chrome://${addon.data.config.addonRef}/content/icons/favicon@0.5x.png`;
     // item menuitem with icon
-    ztoolkit.Menu.register("item", {
-      tag: "menuitem",
-      id: "zotero-itemmenu-addontemplate-test",
-      label: getString("menuitem-label"),
-      commandListener: (ev) => addon.hooks.onDialogEvents("dialogExample"),
-      icon: menuIcon,
+    Zotero.MenuManager.registerMenu({
+      menuID: "zotero-itemmenu-addontemplate-test",
+      pluginID: addon.data.config.addonID,
+      target: "main/library/item",
+      menus: [
+        {
+          menuType: "menuitem",
+          l10nID: getLocaleID("menuitem-label"),
+          icon: menuIcon,
+          onCommand: () => addon.hooks.onDialogEvents("dialogExample"),
+        },
+      ],
     });
   }
 
   @example
   static registerRightClickMenuPopup(win: Window) {
-    ztoolkit.Menu.register(
-      "item",
-      {
-        tag: "menu",
-        label: getString("menupopup-label"),
-        children: [
-          {
-            tag: "menuitem",
-            label: getString("menuitem-submenulabel"),
-            oncommand: "alert('Hello World! Sub Menuitem.')",
-          },
-        ],
-      },
-      "before",
-      win.document?.querySelector(
-        "#zotero-itemmenu-addontemplate-test",
-      ) as XUL.MenuItem,
-    );
+    // submenu inserted before the test menuitem
+    Zotero.MenuManager.registerMenu({
+      menuID: "zotero-itemmenu-addontemplate-menupopup",
+      pluginID: addon.data.config.addonID,
+      target: "main/library/item",
+      menus: [
+        {
+          menuType: "submenu",
+          l10nID: getLocaleID("menupopup-label"),
+          menus: [
+            {
+              menuType: "menuitem",
+              l10nID: getLocaleID("menuitem-submenulabel"),
+              onCommand: () =>
+                ztoolkit.getGlobal("alert")("Hello World! Sub Menuitem."),
+            },
+          ],
+        },
+      ],
+    });
   }
 
   @example
   static registerWindowMenuWithSeparator() {
-    ztoolkit.Menu.register("menuFile", {
-      tag: "menuseparator",
-    });
-    // menu->File menuitem
-    ztoolkit.Menu.register("menuFile", {
-      tag: "menuitem",
-      label: getString("menuitem-filemenulabel"),
-      oncommand: "alert('Hello World! File Menuitem.')",
+    // menu->File separator and menuitem
+    Zotero.MenuManager.registerMenu({
+      menuID: "zotero-menubar-file-addontemplate",
+      pluginID: addon.data.config.addonID,
+      target: "main/menubar/file",
+      menus: [
+        {
+          menuType: "separator",
+        },
+        {
+          menuType: "menuitem",
+          l10nID: getLocaleID("menuitem-filemenulabel"),
+          onCommand: () =>
+            ztoolkit.getGlobal("alert")("Hello World! File Menuitem."),
+        },
+      ],
     });
   }
 
@@ -497,7 +513,7 @@ export class PromptExampleFactory {
           console.log(ids.length);
           if (ids.length > 0) {
             ids.forEach((id: number) => {
-              const item = Zotero.Items.get(id);
+              const item = Zotero.Items.get(id) as Zotero.Item;
               const title = item.getField("title");
               const ele = ztoolkit.UI.createElement(window.document!, "div", {
                 namespace: "html",

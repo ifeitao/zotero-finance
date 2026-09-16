@@ -9,3 +9,12 @@ item-section-example2-sidenav-tooltip =
 item-section-example2-button-tooltip =
     .tooltiptext = 移除此面板
 item-info-row-example-label = 示例行
+
+menuitem-label =
+    .label = Zotero Finance: 金融文献助手
+menupopup-label =
+    .label = Zotero Finance: 弹出菜单
+menuitem-submenulabel =
+    .label = Zotero Finance: 子菜单
+menuitem-filemenulabel =
+    .label = Zotero Finance: 文件菜单

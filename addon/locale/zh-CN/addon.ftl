@@ -1,9 +1,5 @@
 startup-begin = 插件加载中
 startup-finish = 插件已就绪
-menuitem-label = Zotero Finance: 金融文献助手
-menupopup-label = Zotero Finance: 弹出菜单
-menuitem-submenulabel = Zotero Finance：子菜单
-menuitem-filemenulabel = Zotero Finance: 文件菜单
 prefs-title = Zotero Finance
 prefs-table-title = 标题
 prefs-table-detail = 详情

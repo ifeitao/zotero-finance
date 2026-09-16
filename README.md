@@ -1,6 +1,6 @@
 # Zotero Finance 插件
 
-[![zotero target version](https://img.shields.io/badge/Zotero-7-green?style=flat-square&logo=zotero&logoColor=CC2936)](https://www.zotero.org)
+[![zotero target version](https://img.shields.io/badge/Zotero-10-green?style=flat-square&logo=zotero&logoColor=CC2936)](https://www.zotero.org)
 
 一个用于 Zotero 的金融文献自动抓取插件，支持从东方财富网自动抓取上市公司公告和研究报告。
 
