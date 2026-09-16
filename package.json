@@ -1,7 +1,7 @@
 {
   "name": "zotero-finance",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Zotero Finance Plugin - Translators for financial information sources",
   "config": {
     "addonName": "Zotero Finance",
